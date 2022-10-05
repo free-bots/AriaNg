@@ -594,3 +594,10 @@
 .theme-dracula.skin-aria-ng .task-table .task-right-arrow i {
     color: #f8f8f2;
 }
+
+/* misc */
+.theme-dracula.skin-aria-ng .keyboard-key {
+    border: #3f3f3f;
+    background-color: #6272a4;
+    box-shadow: 1px 2px 2px #282a36;
+}

@@ -146,7 +146,11 @@
             return ariaNgConstants.defaultHost;
         };
 
-        var setOptions = function (options) {
+        var setOptions = function (options, ignorePendingFetch) {
+            if (isFetchPending && !ignorePendingFetch) {
+                return undefined;
+            }
+
             return ariaNgStorageService.set(ariaNgConstants.optionStorageKey, options);
         };
 
@@ -273,7 +277,7 @@
                 finalOptions.speedLimits = options.speedLimits;
             }
 
-            setOptions(finalOptions);
+            setOptions(finalOptions, true);
         };
 
         var saveLastDefaultConfigFetch = function () {
@@ -290,11 +294,15 @@
             }
         }
 
+        var isFetchPending = false;
+
         var fetchDefaultConfigAndApply = function () {
+            isFetchPending = true;
             $http({
                 url: ariaNgConstants.defaultConfigPath,
                 method: 'GET'
-            }).then(function onSuccess(response) {
+            })
+            .then(function onSuccess(response) {
                 if (!response || !response.data) {
                     return;
                 }
@@ -306,9 +314,12 @@
 
                 $window.location.reload();
             })
-                .catch(function onError(error) {
-                    ariaNgLogService.warn('[ariaNgSettingService] unable to apply default config', error)
-                });
+            .catch(function onError(error) {
+                ariaNgLogService.warn('[ariaNgSettingService] unable to apply default config', error);
+            })
+            .finally(() => {
+                isFetchPending = false;
+            });
         }
 
         if (!wasDefaultConfigFetched()) {
